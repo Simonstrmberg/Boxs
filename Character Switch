@@ -1,0 +1,61 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CharacterSwitch : MonoBehaviour {
+    GameObject[] playersObjs;
+    public Transform[] players;
+    Selected[] selectedComponents;
+
+    public static Transform mainPlayer;
+
+    KeyCode[] btn = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Alpha0 };
+    // Use this for initialization
+    void Start () {
+        playersObjs = new GameObject[GameObject.FindGameObjectsWithTag("Player").Length];
+        players = new Transform[playersObjs.Length];
+        selectedComponents = new Selected[playersObjs.Length];
+        playersObjs = GameObject.FindGameObjectsWithTag("Player");
+        for(int i = 0; i <playersObjs.Length; i++) {
+            
+            players[i] = playersObjs[i].transform;
+            selectedComponents[i] = playersObjs[i].GetComponent<Selected>();
+            if (selectedComponents[i].selected) {
+                mainPlayer = selectedComponents[i].gameObject.transform;
+
+            }
+        }
+
+
+    }
+	
+	// Update is called once per frame
+	void Update () {
+
+        //if (Input.GetKeyDown(KeyCode.Alpha2)) {
+        //    ChangeCharacter(1);
+        //    print("byt");
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha1)) {
+        //    ChangeCharacter(0);
+        //    print("byt1");
+        //}
+
+        for(int i =0;i < btn.Length; i++) {
+            if (Input.GetKeyDown(btn[i])) {
+                ChangeCharacter(i);
+            }
+        }
+    }
+
+    void ChangeCharacter (int index) {
+        for (int i =0; i < selectedComponents.Length; i++) {
+            if (i == index) {
+                selectedComponents[i].selected = true;
+                mainPlayer = selectedComponents[i].gameObject.transform;
+            } else {
+                selectedComponents[i].selected = false;
+            }
+        }
+    }
+}
