@@ -1,0 +1,33 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraFollow : MonoBehaviour {
+    Transform mainPlayer;
+    public Vector3 velocity;
+    public float time;
+    float cameraOffset = 10;
+    Vector3 dest;
+    public PlayerMovement playerMovement;
+
+    // Update is called once per frame
+    void Update() {
+        mainPlayer = CharacterSwitch.mainPlayer;
+
+        if (mainPlayer) {
+            playerMovement = mainPlayer.GetComponent<PlayerMovement>();
+            var playerRb = mainPlayer.GetComponent<Rigidbody2D>();
+
+            dest = new Vector3(mainPlayer.position.x, mainPlayer.position.y + cameraOffset, transform.position.z);
+            //transform.position = Vector3.SmoothDamp(transform.position, dest, ref velocity, time);
+            transform.position = Vector3.Lerp(transform.position, dest, Time.deltaTime * 10f);
+
+            if (playerMovement.grounded == true) {
+                if (playerRb.gravityScale > 0)
+                    cameraOffset = Mathf.Lerp(cameraOffset, 5, Time.deltaTime * 5);
+                else
+                    cameraOffset = Mathf.Lerp(cameraOffset, -5, Time.deltaTime * 5);
+            } else cameraOffset = Mathf.Lerp(cameraOffset, 0, Time.deltaTime * 5);
+        }
+    }
+}
