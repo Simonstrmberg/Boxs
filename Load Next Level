@@ -1,0 +1,43 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class LevelLoader : MonoBehaviour {
+
+
+    // private void OnCollisionEnter2D(Collision2D collision) {
+    //     if (collision.transform.tag == "Player") {
+
+    //         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    //     }
+    // }
+
+    private void Start() {
+        GetComponent<SpriteRenderer>().color = new Vector4(0, 0, 0, 0);
+             
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.DrawWireCube(transform.position, Vector3.one*10);
+    }
+
+    private void Update() {
+        var pickups = GameObject.FindGameObjectWithTag("Pickup");
+        
+        var counter = 0;
+        if (!pickups) {
+
+            var hitlist = Physics2D.OverlapBoxAll(transform.position, Vector3.one * 10, 0);
+            foreach (var hit in hitlist) {
+                if (hit.transform.tag == "Player") counter++;
+            }
+            if (counter == 2) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
+            GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 0.5f * counter + 0.5f);
+
+
+        }
+    }
+
+}
