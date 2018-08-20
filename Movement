@@ -1,0 +1,105 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerMovement : MonoBehaviour {
+    public float moveSpeed;
+    public float jumpHeight;
+
+    public Transform groundCheck;
+    public Transform groundCheckTop;
+
+    public Rigidbody2D rb;
+    public float groundCheckRadius;
+
+    public LayerMask whatIsGround;
+
+    public bool grounded;
+    public float groundcheckwidth;
+    bool selected;
+    Selected sel;
+    float switchTimer;
+
+    // Use this for initialization
+    void Start() {
+        rb = GetComponent<Rigidbody2D>();
+        sel = gameObject.GetComponent<Selected>();
+    }
+    void FixedUpdate() {
+        selected = sel.selected;
+        Collider2D[] hitlist;
+        //if (selected) {
+
+            // grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, whatIsGround);
+            if (rb.gravityScale > 0)
+                hitlist = Physics2D.OverlapBoxAll(groundCheck.position, new Vector2(groundcheckwidth, 0.5f), 0);
+            else
+                hitlist = Physics2D.OverlapBoxAll(groundCheckTop.position, new Vector2(groundcheckwidth, 0.5f), 0);
+            // hitlist = Physics2D.OverlapBoxAll(groundCheck.position, new Vector2(0.5f, 0.5f), 0);
+
+            grounded = false;
+            foreach (var hit in hitlist) {
+
+                if (hit.gameObject != gameObject && (hit.transform.tag == "Player" || hit.transform.tag == "Ground")) grounded = true;
+            }
+
+        //}
+
+    }
+
+    private void OnDrawGizmos() {
+        Gizmos.DrawWireCube(groundCheck.position, new Vector2(groundcheckwidth, 0.5f));
+        Gizmos.DrawWireCube(groundCheckTop.position, new Vector2(groundcheckwidth, 0.5f));
+    }
+
+    // Update is called once per frame
+    void Update() {
+        if (switchTimer > 0) switchTimer -= Time.deltaTime;
+
+        if (selected) {
+
+            if (Input.GetKeyDown(KeyCode.Space) && grounded) {
+                if (rb.gravityScale > 0)
+                    rb.velocity = new Vector2(rb.velocity.x, jumpHeight);
+                else
+                    rb.velocity = new Vector2(rb.velocity.x, -jumpHeight);
+            }
+            //if (Input.GetKey(KeyCode.RightArrow)) {
+            //    rb.velocity = new Vector2(moveSpeed, rb.velocity.y);
+            //}
+            //if (Input.GetKey(KeyCode.LeftArrow)) {
+            //    rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
+            //}
+            rb.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, rb.velocity.y);
+            
+
+
+            //if (Input.GetKeyDown(KeyCode.UpArrow) && grounded) {
+            //    rb.gravityScale = -15f;
+            //}
+            //if (Input.GetKeyDown(KeyCode.DownArrow) && grounded) {
+            //    rb.gravityScale = 15f;
+            //}
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        } else {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            if (grounded)
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        }
+
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision) {
+        if (collision.tag == "Pickup") Destroy(collision.gameObject);
+        
+        if (collision.tag == "Switch" &&switchTimer <=0) {
+            switchTimer = 1f;
+            if (rb.gravityScale > 0) rb.gravityScale *= -1;
+            else
+            rb.gravityScale *= -1;
+           
+        }
+        print(collision.tag);
+    }
+
+}
